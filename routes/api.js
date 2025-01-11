@@ -8,12 +8,14 @@ import {
   UserLogin,
   UserLogout,
   UserRegister,
+  VerifyUserRegister,
 } from "../app/controllers/UserController.js";
 import authMiddleware from "../app/middlwares/authMiddleware.js";
 const router = express.Router();
 
 //User Routes
-router.post("/UserRegister", UserRegister);
+router.post("/UserRegisterOtp", UserRegister);
+router.post("/VerifyUserRegister", VerifyUserRegister);
 router.get("/UserLogin/:email/:pass", UserLogin);
 
 router.post("/UpdateProfile", authMiddleware, UpdateProfile);

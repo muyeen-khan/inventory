@@ -6,10 +6,16 @@ import {
   UpdateProfileService,
   UserLoginService,
   UserRegisterService,
+  VerifyRegisterService,
 } from "../services/UserServices.js";
 
 export const UserRegister = async (req, res) => {
   let result = await UserRegisterService(req);
+  return res.status(200).json(result);
+};
+
+export const VerifyUserRegister = async (req, res) => {
+  let result = await VerifyRegisterService(req, res);
   return res.status(200).json(result);
 };
 

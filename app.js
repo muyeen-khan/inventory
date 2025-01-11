@@ -61,7 +61,7 @@ app.use(express.static("uploads"));
 
 //add react front end routing
 app.get("*", function (req, res) {
-  res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
+  res.send("Hello World");
 });
 
 //run express backend project

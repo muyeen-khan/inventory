@@ -1,6 +1,8 @@
 import UserModel from "../models/UserModel.js";
+import sendEmail from "../utility/emailUtility.js";
 import { encodeToken } from "../utility/tokenUtility.js";
 
+//User Register Service via sending otp
 export const UserRegisterService = async (req, res) => {
   try {
     let reqBody = req.body;
@@ -8,14 +10,72 @@ export const UserRegisterService = async (req, res) => {
     let existingUser = await UserModel.findOne({ email: reqBody.email });
     if (!existingUser) {
       await UserModel.create(reqBody);
-      return {
-        status: "success",
-        message: "User has been registered successfully",
-      };
+
+      //send otp via email----------
+      //create otp
+      let otp = Math.floor(1000 + Math.random() * 9000);
+      let isOtpSent = await sendEmail(
+        reqBody.email,
+        `your otp is ${otp}`,
+        "OTP for registration",
+        "<h1>your otp is " + otp + "</h1>"
+      );
+      if (isOtpSent) {
+        await UserModel.updateOne({ email: reqBody.email }, { otp: otp });
+        return {
+          status: "success",
+          message: "Otp has been sent successfully",
+        };
+      } else {
+        return {
+          status: "failed",
+          message: "Otp has not been sent",
+        };
+      }
     } else {
       return {
         status: "failed",
         message: "User already exists",
+      };
+    }
+  } catch (error) {
+    return {
+      status: "failed",
+      message: "something went wrong",
+    };
+  }
+};
+
+//Verify User Register Service
+export const VerifyRegisterService = async (req, res) => {
+  try {
+    let email = req.body.email;
+    let otp = req.body.otp;
+    let data = await UserModel.findOne({ email: email });
+    if (data.otp === otp) {
+      await UserModel.updateOne(
+        { email: email },
+        { $set: { otp: "" } },
+        { upsert: true }
+      );
+
+      //send confirmation email
+      sendEmail(
+        email,
+        "you registered successfully,now you can login with your email and password",
+        "Registration Confirmation",
+        "<h1>Registration is successful</h1>"
+      );
+
+      return {
+        status: "success",
+        message:
+          "Registration is successful,now you can login with your email and password",
+      };
+    } else {
+      return {
+        status: "failed",
+        message: "Invalid otp",
       };
     }
   } catch (error) {
