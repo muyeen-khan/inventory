@@ -3,6 +3,7 @@ import {
   DeleteUserService,
   LogoutService,
   ReadProfileService,
+  UpdatePasswordService,
   UpdateProfileService,
   UserLoginService,
   UserRegisterService,
@@ -31,6 +32,11 @@ export const UserLogout = async (req, res) => {
 
 export const UpdateProfile = async (req, res) => {
   let result = await UpdateProfileService(req);
+  return res.status(200).json(result);
+};
+
+export const UpdatePassword = async (req, res) => {
+  let result = await UpdatePasswordService(req);
   return res.status(200).json(result);
 };
 

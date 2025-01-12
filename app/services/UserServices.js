@@ -138,11 +138,11 @@ export const LogoutService = async (req, res) => {
 
 export const UpdateProfileService = async (req, res) => {
   try {
-    let reqBody = req.body;
-    let email = req.headers.email;
+    let { name, email } = req.body;
+    let userEmail = req.headers.email;
     await UserModel.updateOne(
-      { email: email },
-      { $set: reqBody },
+      { email: userEmail },
+      { $set: { name: name, email: email } },
       { upsert: true }
     );
     return {
@@ -157,10 +157,42 @@ export const UpdateProfileService = async (req, res) => {
   }
 };
 
+export const UpdatePasswordService = async (req, res) => {
+  try {
+    let email = req.headers.email;
+    let { prevPass, newPass } = req.body;
+    let data = await UserModel.findOne({ email: email });
+    if (data.password === prevPass) {
+      await UserModel.updateOne(
+        { email: email },
+        { $set: { password: newPass } },
+        { upsert: true }
+      );
+      return {
+        status: "success",
+        message: "Password has been updated successfully",
+      };
+    } else {
+      return {
+        status: "failed",
+        message: "Invalid previous password",
+      };
+    }
+  } catch (error) {
+    return {
+      status: "failed",
+      message: "something went wrong",
+    };
+  }
+};
+
 export const ReadProfileService = async (req, res) => {
   try {
     let email = req.headers.email;
-    let data = await UserModel.findOne({ email: email });
+    let data = await UserModel.findOne(
+      { email: email },
+      { name: 1, email: 1, role: 1 }
+    );
     return { status: "success", data: data };
   } catch (error) {
     return {
@@ -172,8 +204,16 @@ export const ReadProfileService = async (req, res) => {
 
 export const AllUsersReadProfilesService = async (req, res) => {
   try {
-    let data = await UserModel.find();
-    return { status: "success", data: data };
+    let email = req.headers.email;
+
+    let { role } = await UserModel.findOne({ email: email }, { role: 1 });
+
+    if (role === "admin") {
+      let data = await UserModel.find();
+      return { status: "success", data: data };
+    } else {
+      return { status: "failed", message: "only admin can see all users" };
+    }
   } catch (error) {
     return {
       status: "failed",

@@ -8,7 +8,7 @@ const inventoryItemSchema = new mongoose.Schema(
       trim: true,
     },
     category: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Category",
       required: true,
     },
@@ -42,4 +42,4 @@ const inventoryItemSchema = new mongoose.Schema(
 );
 
 const ItemModel = mongoose.model("Item", inventoryItemSchema);
-module.exports = ItemModel;
+export default ItemModel;

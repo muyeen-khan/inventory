@@ -12,6 +12,16 @@ const categorySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    img: {
+      type: String,
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value.startsWith("http://") || value.startsWith("https://");
+        },
+        message: "Image URL must start with http:// or https://",
+      },
+    },
   },
   { timestamps: true, versionKey: false }
 );
